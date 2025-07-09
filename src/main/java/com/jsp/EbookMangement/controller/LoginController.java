@@ -42,44 +42,24 @@ public class LoginController extends HttpServlet {
 				user.setName("Admin");
 
 				session.setAttribute("userobj", user);
-
 				resp.sendRedirect("admin/home.jsp");
 			} else {
-
 				User user = service.userLoginDaoByEmailDService(email, password);
 
 				if (user.getEmail() != null && user.getPassword() != null) {
-
 					session.setAttribute("userobj", user);
 
-					// Email details from request or hardcoded
-					String to = email; // receiver
-					String subject = "Test Email from Servlet";
-					String messageText = "Welcome To Online Book Store Management "
-							+ "Subject: Welcome to [Your Website Name] – Your Book Adventure Starts Here!\n"
-							+ "\n"
-							+ "Hi [User's First Name],\n"
-							+ "\n"
-							+ "Welcome to [Your Website Name], your go-to destination for buying and selling new and pre-loved books!\n"
-							+ "\n"
-							+ "We’re thrilled to have you join our community of book lovers. Whether you're here to discover your next great read or give your old books a new home, we've got you covered.\n"
-							+ "\n"
-							+ "Here's what you can do next:\n"
-							+ "\n"
-							+ "Browse thousands of books across all genres\n"
-							+ "\n"
-							+ "Sell your books easily with just a few clicks\n"
-							+ "\n"
-							+ "Track your orders and manage listings from your dashboard\n"
-							+ "\n"
-							+ "";
-					
-					
+					// Email Details
+					String to = email;
+					String subject = "Welcome to Online Book Store!";
+					String messageText = "Hi " + user.getName() + ",\n\n"
+							+ "Welcome to our online book store! Explore, buy, and enjoy thousands of books.\n\n"
+							+ "Regards,\nOnline Book Store Team";
 
-					// SMTP configuration
+					// Secure SMTP credentials using Environment Variables
 					String host = "smtp.gmail.com";
-					final String username = "mohd3daoud@gmail.com";
-					final String userpassword = "atni cryx htwz srgr"; // use app-specific password
+					final String username = System.getenv("SMTP_USER");
+					final String userpassword = System.getenv("SMTP_PASS");
 
 					Properties props = new Properties();
 					props.put("mail.smtp.host", host);
@@ -87,7 +67,6 @@ public class LoginController extends HttpServlet {
 					props.put("mail.smtp.auth", "true");
 					props.put("mail.smtp.starttls.enable", "true");
 
-					// Create Session
 					Session session1 = Session.getInstance(props, new Authenticator() {
 						protected PasswordAuthentication getPasswordAuthentication() {
 							return new PasswordAuthentication(username, userpassword);
@@ -95,20 +74,14 @@ public class LoginController extends HttpServlet {
 					});
 
 					try {
-						// Compose message
 						MimeMessage message = new MimeMessage(session1);
 						message.setFrom(new InternetAddress(username));
 						message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 						message.setSubject(subject);
 						message.setText(messageText);
-
-						// Send message
 						Transport.send(message);
-
-						// out.println("<h3>Email Sent Successfully!</h3>");
 					} catch (MessagingException e) {
 						e.printStackTrace();
-						// out.println("<h3>Error Sending Email: " + e.getMessage() + "</h3>");
 					}
 
 					resp.sendRedirect("index.jsp");
@@ -116,12 +89,9 @@ public class LoginController extends HttpServlet {
 					session.setAttribute("faildMsg", "Please Enter Valid Email & Password");
 					resp.sendRedirect("login.jsp");
 				}
-
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }
